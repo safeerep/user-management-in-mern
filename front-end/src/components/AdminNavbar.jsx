@@ -1,16 +1,21 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useSelector, useDispatch} from "react-redux"
+import { adminLogout} from "../store/store";
 
 function AdminNavbar() {
   const navigate = useNavigate();
+  const dipatch = useDispatch()
+  const admin = useSelector((state) => state.adminReducer);
   const [isDropdownOpen, setDropdownOpen] = useState(false);
   const handleButtonClickForDropDown = () => {
     setDropdownOpen(!isDropdownOpen);
   };
 
-  const adminLogout = () => {
-    console.log("called for logout");
+  const handleAdminLogout = () => {
+    dipatch(adminLogout(navigate))
   };
+
   return (
     <div className="flex w-full bg-white shadow h-16 items-center">
       <div className="flex justify-center w-full ">
@@ -28,7 +33,7 @@ function AdminNavbar() {
               aria-expanded="true"
               aria-haspopup="true"
             >
-              admin
+              {admin.email}
               <svg
                 className="-mr-1 h-5 w-5 text-gray-400"
                 viewBox="0 0 20 20"
@@ -56,7 +61,7 @@ function AdminNavbar() {
                 <a
                   onClick={(e) => {
                     e.preventDefault();
-                    adminLogout()
+                    handleAdminLogout()
                   }}
                   className="block px-4 py-2 text-sm text-red-600"
                   role="menuitem"

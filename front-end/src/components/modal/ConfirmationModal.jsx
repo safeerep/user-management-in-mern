@@ -1,7 +1,7 @@
 import React from "react";
 import toast, { Toaster } from "react-hot-toast";
 
-function ConfirmationModal({ isModalOpen, setIsModalOpen, afterConfirmation }) {
+function ConfirmationModal({ isModalOpen, setIsModalOpen, afterConfirmation, setUsers }) {
   
   return (
     <>

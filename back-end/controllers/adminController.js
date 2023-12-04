@@ -1,26 +1,55 @@
 const mongoose = require("mongoose");
 const bcrypt = require("bcrypt");
-const User = require("../models/userModel")
+const jwt = require("jsonwebtoken");
+const User = require("../models/userModel");
 const Admin = require("../models/adminModel");
+require("dotenv").config();
 
 module.exports = {
+
+  // check auth
+  auth: async (req, res) => {
+    const token = req?.cookies?.adminJwt;
+    if (token) {
+      jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, async (err, decoded) => {
+        if (err) {
+          res.json({ success: false, message: err });
+        } else {
+          const adminId = decoded.user;
+          const adminData = await Admin.findById(adminId)
+          res.json({ success: true, adminData });
+        }
+      });
+    } else {
+      res.json({ success: false, message: 'authentication failed'});
+    }
+  },
+
+
   // to create an admin at first time
   adminSignup: async (req, res) => {
     try {
-        req.body.password = bcrypt.hashSync(req.body.password, 10);
-        const newAdmin = await Admin.create(req.body);
-        if (newAdmin) {
-          res.json({ success: true });
-        } else {
-          res.json({ success: false });
-        }
+      req.body.password = bcrypt.hashSync(req.body.password, 10);
+      const newAdmin = await Admin.create(req.body);
+      if (newAdmin) {
+        const accessToken = jwt.sign(
+          { admin: newAdmin._id },
+          process.env.ACCESS_TOKEN_SECRET,
+          { expiresIn: "30d" }
+        );
+        res.cookie("adminJwt", accessToken, {
+          maxAge: 30 * 24 * 60 * 60 * 1000,
+        });
+        res.json({ success: true });
+      } else {
+        res.json({ success: false });
+      }
     } catch (error) {
-        if (error.code === 11000) {
-            res.json({success: false, message: 'already existing'})
-        }
-        else {
-            res.json({success: false, message: 'something went wrong'})
-        }
+      if (error.code === 11000) {
+        res.json({ success: false, message: "already existing" });
+      } else {
+        res.json({ success: false, message: "something went wrong" });
+      }
     }
   },
 
@@ -35,7 +64,15 @@ module.exports = {
           existingAdmin.password
         );
         if (isValidPassword) {
-          res.json({ success: true });
+          const accessToken = jwt.sign(
+            { admin: existingAdmin._id },
+            process.env.ACCESS_TOKEN_SECRET,
+            { expiresIn: "30d" }
+          );
+          res.cookie("adminJwt", accessToken, {
+            maxAge: 30 * 24 * 60 * 60 * 1000,
+          });
+          res.json({ success: true, adminData: existingAdmin });
         } else {
           res.json({ success: false, message: "Invalid credentials" });
         }
@@ -43,37 +80,44 @@ module.exports = {
         res.json({ success: false, message: "Invalid credentials" });
       }
     } catch (error) {
+      console.log(error);
       res.json({ success: false, message: "Something went wrong" });
     }
   },
 
-  dashboard : async ( req, res) => {
-    const searchEmail = req.query.searchEmail || '';
+  logout: (req, res) => {
+    res.cookie("adminJwt", "", { maxAge: 1 });
+    res.json({ success: true});
+  },
+
+  dashboard: async (req, res) => {
+    const searchEmail = req.query.searchEmail || "";
     try {
-      const users = await User.find({email: {
-        $regex: searchEmail,
-        $options: "i",
-      }});
-      res.json({success: true, users})
+      const users = await User.find({
+        email: {
+          $regex: searchEmail,
+          $options: "i",
+        },
+      });
+      res.json({ success: true, users });
     } catch (error) {
-      res.json({success: false})
+      res.json({ success: false });
     }
-  }, 
+  },
 
   addUser: async (req, res) => {
     try {
       const newUser = await User.create(req.body);
       if (newUser) {
-         res.json({success: true})
-      }
-      else {
-        res.json({success: false})
+        res.json({ success: true });
+      } else {
+        res.json({ success: false });
       }
     } catch (error) {
       if (error.code === 11000) {
-        res.json({success: false, message: 'already registered'})
+        res.json({ success: false, message: "already registered" });
       } else {
-        res.json({ success: false, message: 'something went wrong'})
+        res.json({ success: false, message: "something went wrong" });
       }
     }
   },
@@ -81,31 +125,34 @@ module.exports = {
   editUserProfile: async (req, res) => {
     try {
       console.log(req.body);
-      const userId = req.body.id
-      const updatedUser = await User.findByIdAndUpdate(userId, {...req.body})
+      const userId = req.body.id;
+      const updatedUser = await User.findByIdAndUpdate(userId, { ...req.body });
       if (updatedUser) {
-        res.json({success: true})
+        const users = await User.find()
+        res.json({ success: true, users });
       } else {
-        res.json({success: false, message: 'something went wrong'})
+        res.json({ success: false, message: "something went wrong" });
       }
     } catch (error) {
       if (error.code === 11000) {
-        res.json({success: false, message: 'already registered email'})
-      }
-      else {
-        res.json({success: false, message: 'something went wrong'})
+        res.json({ success: false, message: "already registered email" });
+      } else {
+        res.json({ success: false, message: "something went wrong" });
       }
     }
-  }, 
+  },
 
   deleteAUser: async (req, res) => {
     try {
-      const user = req.body.currentUser;
-      const deleteUser = await User.findByIdAndDelete(user._id)
-      if (deleteUser) res.json({success: true})
-      else res.json({success: false, message: 'something went wrong'})
+      const userId = req.query.userId;
+      const deleteUser = await User.findByIdAndDelete(userId);
+      if (deleteUser) {
+        const users = await User.find()
+        res.json({ success: true, users });
+      } 
+      else res.json({ success: false, message: "something went wrong" });
     } catch (error) {
-      res.json({success: false, message: 'An error occured'})
+      res.json({ success: false, message: "An error occured" });
     }
-  }
+  },
 };

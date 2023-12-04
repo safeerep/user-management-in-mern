@@ -5,7 +5,7 @@ import axios from "axios";
 import { BACKEND_BASE_URL } from "../../constants/constants";
 
 function EditUserDataByAdmin(props) {
-  const { isModalOpen, setIsModalOpen, currentUser } = props;
+  const { isModalOpen, setIsModalOpen, currentUser, setUsers} = props;
   const navigate = useNavigate();
   const [userName, setUserName] = useState(null);
   const [email, setEmail] = useState(null);
@@ -50,7 +50,7 @@ function EditUserDataByAdmin(props) {
         userName: userName || currentUser.userName,
       };
       axios
-        .post(`${BACKEND_BASE_URL}/admin/edit-user-data`, credentials, {
+        .put(`${BACKEND_BASE_URL}/admin/edit-user-data`, credentials, {
           headers: { "Content-Type": "application/json" },
           withCredentials: true,
         })
@@ -58,6 +58,7 @@ function EditUserDataByAdmin(props) {
           const response = res.data;
           if (response.success) {
             setIsModalOpen(false);
+            setUsers(response.users)
             toast.success("successfully updated");
           } else {
             const error = response.message;

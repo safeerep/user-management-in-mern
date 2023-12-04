@@ -1,13 +1,14 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
-import {BACKEND_BASE_URL} from "../../constants/constants"
+import { useDispatch} from "react-redux"
+import { userSignup} from "../../store/store"
 import Username from "../../components/Username";
 import Email from "../../components/Email";
 import Password from "../../components/Password";
 
 function Signup() {
   const navigate = useNavigate();
+  const dispatch = useDispatch()
   const [userName, setUserName] = useState("");
   const [email, setEmail] = useState("");
   const [emailState, setEmailState] = useState(false);
@@ -34,26 +35,7 @@ function Signup() {
         }, 3000);
       }
     } else {
-      const credentials = {
-        userName,
-        email,
-        password,
-      }
-      axios.post(`${BACKEND_BASE_URL}/sign-up`, credentials, {
-        headers: { "Content-Type": "application/json" },
-        withCredentials: true,
-      })
-      .then((res) => {
-        const response = res.data;
-        if (response.success) {
-          navigate('/home')
-        } else {
-          setErrorMessage(response.message)
-        }
-      })
-      .catch((err) => {
-        console.log(`an error happened ${err}`);
-      })
+      dispatch(userSignup({ userName, email, password }, setErrorMessage, navigate))
     }
   };
   return (

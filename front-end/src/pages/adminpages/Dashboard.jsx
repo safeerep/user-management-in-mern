@@ -30,7 +30,7 @@ function Dashboard() {
       .catch((err) => {
         console.log(`an error happened ${err}`);
       });
-  }, [users]);
+  }, []);
 
   useEffect(() => {
     
@@ -47,7 +47,6 @@ function Dashboard() {
           const response = res.data;
           if (response.success) {
             const users = response.users;
-            console.log(users);
             setUsers(response.users);
           }
         })
@@ -60,20 +59,20 @@ function Dashboard() {
   }, [searchEmail]);
 
   const deleteOneUser = () => {
-    console.log("called for delete");
-    console.log(currentUser);
-    const currentUserDetails = {
-      currentUser,
-    };
+    const userId = currentUser._id;
     axios
-      .post(`${BACKEND_BASE_URL}/admin/delete-user`, currentUserDetails, {
+      .delete(`${BACKEND_BASE_URL}/admin/delete-user`, {
         headers: { "Content-Type": "application/json" },
+        params: {userId},
         withCredentials: true,
       })
       .then((res) => {
         const response = res.data;
         setIsModalForDeleteOpen(false);
-        if (response.success) toast.success("successfully deleted");
+        if (response.success){
+          toast.success("successfully deleted");
+          setUsers(response.users)
+        } 
         else toast.error(response.message);
       })
       .catch((err) => {
@@ -158,11 +157,13 @@ function Dashboard() {
         currentUser={currentUser}
         isModalOpen={isModalOpen}
         setIsModalOpen={setIsModalOpen}
+        setUsers={setUsers}
       />
       <ConfirmationModal
         afterConfirmation={deleteOneUser}
         isModalOpen={isModalForDeleteOpen}
         setIsModalOpen={setIsModalForDeleteOpen}
+        setUsers={setUsers}
       />
       <CreateNewUserByAdmin
         isModalOpen={isModalForAddUserOpen}

@@ -1,5 +1,6 @@
 const express = require("express");
 const cors = require("cors");
+const path = require('path')
 const session = require('express-session')
 const bodyParser = require("body-parser");
 const cookieParser = require("cookie-parser");
@@ -26,6 +27,7 @@ app.use(
     saveUninitialized: true,
   })
 );
+app.use('/uploads',express.static(path.join(__dirname,"public","uploads")));
 app.use("/", userRoutes);
 app.use("/admin", adminRoutes);
 

@@ -1,5 +1,7 @@
 import React, { useState, useRef } from "react";
 import axios from "axios";
+import { useDispatch} from "react-redux"
+import { adminLogin} from "../../store/store"
 import { BACKEND_BASE_URL } from "../../constants/constants";
 import Email from "../../components/Email";
 import Password from "../../components/Password";
@@ -8,6 +10,7 @@ import { useNavigate } from "react-router-dom";
 
 function Login() {
   const navigate = useNavigate()
+  const dispatch = useDispatch()
   const [email, setEmail] = useState("");
   const [emailState, setEmailState] = useState(false);
   const [password, setPassword] = useState("");
@@ -30,25 +33,7 @@ function Login() {
         }, 3000);
       }
     } else {
-      const credentials = {
-        email,
-        password
-      }
-      axios.post(`${BACKEND_BASE_URL}/admin/login`, credentials, {
-        headers: { "Content-Type": "application/json" },
-        withCredentials: true,
-      })
-      .then((res) => {
-        const response = res.data;
-        if (response.success) {
-          navigate('/admin-panel')
-        } else {
-          setErrorMessage(response.message)
-        }
-      })
-      .catch((err) => {
-        console.log(`an error happened ${err}`);
-      })
+      dispatch(adminLogin({email, password}, setErrorMessage, navigate))
     }
   };
   return (
