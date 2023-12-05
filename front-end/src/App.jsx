@@ -15,8 +15,6 @@ function App() {
   const dispatch = useDispatch();
   const user = useSelector((state) => state.userReducer);
   const admin = useSelector((state) => state.adminReducer);
-  console.log(user);
-  console.log(admin);
   useLayoutEffect(() => {
     if (!user.isAuthenticated) {
       axios

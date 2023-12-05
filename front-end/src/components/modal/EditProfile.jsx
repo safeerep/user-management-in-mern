@@ -29,7 +29,6 @@ function EditProfile({ isModalOpen, setIsModalOpen }) {
           setUserData(response?.userData);
           setEmail(response?.userData?.email);
           setUserName(response?.userData?.userName);
-          setImage(response?.userData?.profilePhoto);
         }
       });
   }, [user]);
@@ -55,12 +54,12 @@ function EditProfile({ isModalOpen, setIsModalOpen }) {
         userProfileUpdate(
           { userId, userName, email, image },
           setErrorMessage,
-          navigate,
-        ) 
-      ) .then(() => { 
-        setIsModalOpen(false)
-        setImage()
-      })
+          navigate
+        )
+      ).then(() => {
+        setIsModalOpen(false);
+        setImage();
+      });
     }
   };
   return (
@@ -84,36 +83,38 @@ function EditProfile({ isModalOpen, setIsModalOpen }) {
                   <p className="text-red-600 text-center">{errorMessage}</p>
                 )}
                 {/* startin */}
-                {
-  (userData?.profilePhoto || image) ? (
-    <div className="w-full flex justify-center">
-      <div className="w-40 rounded-full object-fill overflow-hidden h-40">
-        <img
-          className="object-cover"
-          src={image ? `${BACKEND_BASE_URL}/uploads/${userData?.profilePhoto}` : URL.createObjectURL(image)}
-          alt=""
-        />
-      </div>
-    </div>
-  ) : (
-    <div className="w-full flex justify-center">
-      <div className="w-40 rounded-full object-fill overflow-hidden h-40">
-        <img
-          className="object-cover"
-          src="/images/profile.jpg"
-          alt=""
-        />
-      </div>
-    </div>
-  )
-}
+                {(userData?.profilePhoto || image) ? (
+                  <div className="w-full flex justify-center">
+                    <div className="w-40 rounded-full object-fill overflow-hidden h-40">
+                      <img
+                        className="h-40 w-40 object-cover"
+                        src={
+                          image
+                            ? URL.createObjectURL(image)
+                            : `${BACKEND_BASE_URL}/uploads/${userData?.profilePhoto}`
+                        }
+                        alt=""
+                      />
+                    </div>
+                  </div>
+                ) : (
+                  <div className="w-full flex justify-center">
+                    <div className="w-40 rounded-full object-fill overflow-hidden h-40">
+                      <img
+                        className="h-40 w-40 object-cover"
+                        src="/images/profile.jpg"
+                        alt=""
+                      />
+                    </div>
+                  </div>
+                )}
 
                 <div className="w-full flex justify-center">
                   <label
                     htmlFor="profile-photo-input"
                     className="bg-slate-100 border text-black py-2 px-4 rounded cursor-pointer"
                   >
-                    Add Profile Photo
+                    {userData?.profilePhoto? 'Edit profile photo' : 'Add Profile Photo'}
                   </label>
                   <input
                     onChange={(e) => {
