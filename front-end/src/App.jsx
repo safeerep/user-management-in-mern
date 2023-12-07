@@ -1,4 +1,4 @@
-import { useLayoutEffect } from "react";
+import React, { useEffect, useLayoutEffect} from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import axios from "axios";
@@ -15,7 +15,7 @@ function App() {
   const dispatch = useDispatch();
   const user = useSelector((state) => state.userReducer);
   const admin = useSelector((state) => state.adminReducer);
-  useLayoutEffect(() => {
+  useLayoutEffect( () => {
     if (!user.isAuthenticated) {
       axios
         .get(`${BACKEND_BASE_URL}/check-auth`, {
@@ -53,6 +53,7 @@ function App() {
         });
     }
   }, [user, admin]);
+  
 
   return (
     <>

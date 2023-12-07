@@ -7,8 +7,7 @@ import EditProfile from "../../components/modal/EditProfile";
 
 function Profile() {
   const dispatch = useDispatch();
-  const [updateProfileModalIsOpen, setUpdateProfileModalIsOpen] =
-    useState(false);
+  const [updateProfileModalIsOpen, setUpdateProfileModalIsOpen] = useState(false);
   const userId = useSelector((state) => state?.userReducer?.userId);
   const [userData, setUserData] = useState();
   useEffect(() => {
@@ -20,7 +19,6 @@ function Profile() {
         const response = res.data;
         if (response.success) {
           setUserData(response.userData);
-        
         }
       });
   }, [userData]);
@@ -34,7 +32,15 @@ function Profile() {
       <div className="flex justify-center">
         <div className="flex shadow w-1/2 mt-5 h-40">
           <div className="bg-white w-40  border-r border-black">
-            <img src={userData?.profilePhoto? `${BACKEND_BASE_URL}/uploads/${userData?.profilePhoto}` : "/images/profile.jpg"} className="object-cover h-40 w-40" alt="" />
+            <img
+              src={
+                userData?.profilePhoto
+                  ? `${BACKEND_BASE_URL}/uploads/${userData?.profilePhoto}`
+                  : "/images/profile.jpg"
+              }
+              className="object-cover h-40 w-40"
+              alt=""
+            />
             <button
               onClick={handleUpdateProfile}
               className="font-bold absolute border mt-4 p-2 bg-slate-100"

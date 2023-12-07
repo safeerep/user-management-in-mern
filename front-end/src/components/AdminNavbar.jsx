@@ -6,7 +6,7 @@ import { adminLogout} from "../store/store";
 function AdminNavbar() {
   const navigate = useNavigate();
   const dipatch = useDispatch()
-  const admin = useSelector((state) => state.adminReducer);
+  const admin = useSelector((state) => state?.adminReducer);
   const [isDropdownOpen, setDropdownOpen] = useState(false);
   const handleButtonClickForDropDown = () => {
     setDropdownOpen(!isDropdownOpen);
@@ -33,7 +33,7 @@ function AdminNavbar() {
               aria-expanded="true"
               aria-haspopup="true"
             >
-              {admin.email}
+              admin
               <svg
                 className="-mr-1 h-5 w-5 text-gray-400"
                 viewBox="0 0 20 20"

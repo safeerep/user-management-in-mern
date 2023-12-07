@@ -1,12 +1,39 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useSelector} from "react-redux";
-import { userLogout} from "../store/store"
+import { userLogout, setUser} from "../store/store"
 import { useDispatch} from "react-redux"
+import axios from "axios";
+import { BACKEND_BASE_URL } from "../constants/constants";
 
 function Navbar() {
   const dispatch = useDispatch()
   const user = useSelector((state) => state.userReducer);
+  useEffect(() => {
+    try {
+      if (user.isAuthenticated) {
+        axios
+          .get(`${BACKEND_BASE_URL}/check-auth`, {
+            withCredentials: true,
+          })
+          .then((res) => {
+            const response = res.data;
+            if (response.success) {
+              dispatch(
+                setUser({
+                  userId: response?.userData?._id,
+                  name: response?.userData?.userName,
+                  isAuthenticated: true,
+                })
+              );
+            }
+          });
+      }
+      
+    } catch (error) {
+      console.log(`an error happened safeer.. ${error}`);
+    }
+  },[user.isAuthenticated])
   const navigate = useNavigate();
   const [isDropdownOpen, setDropdownOpen] = useState(false);
   const handleButtonClickForDropDown = () => {
@@ -14,7 +41,6 @@ function Navbar() {
   };
 
   const handleLogout = () => {
-    console.log('called for logout');
     dispatch(userLogout())
     navigate('/', { replace: true })
   }

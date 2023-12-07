@@ -8,7 +8,7 @@ const userReducer = (prev = { isAuthenticated: false }, action) => {
     case "set":
       return {
         ...prev,
-        userId: action?.payload.userId,
+        userId: action?.payload?.userId,
         name: action?.payload?.name,
         isAuthenticated: true,
       };
